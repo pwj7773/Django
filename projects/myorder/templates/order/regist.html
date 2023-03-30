@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>주문등록</title>
+  </head>
+  <body>
+    <h1>[주문등록]</h1>
+    <form action="../regist/" method="post">
+      {% csrf_token %}
+      <table>
+        <tr>
+          <th>주문내역</th>
+          <td><input type="text" name="order_text" /></td>
+        </tr>
+        <tr>
+          <th>가격</th>
+          <td><input type="text" name="price" /></td>
+        </tr>
+        <tr>
+          <th>주소</th>
+          <td><textarea name="address"></textarea></td>
+        </tr>
+        <tr>
+          <th colspan="2">
+            <input type="submit" value="등록" />
+          </th>
+        </tr>
+      </table>
+    </form>
+    <a href="javascript: history.back()">뒤로가기</a>
+  </body>
+</html>

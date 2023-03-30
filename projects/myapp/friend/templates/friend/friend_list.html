@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- static file 불러오기 load static -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+  </head>
+  <body>
+    <h1>친구 목록 보기</h1>
+    {{fList}}
+    <table>
+      <tr>
+        <th>번호</th>
+        <th>이름</th>
+        <th>나이</th>
+        <th>자기소개</th>
+        <th>수정/삭제</th>
+      </tr>
+      {% for f in fList %}
+      <tr>
+        <td>{{ f.id }}</td>
+        <td>{{ f.friend_name }}</td>
+        <td>{{ f.friend_age }}</td>
+        <td>{{ f.friend_bigo }}</td>
+        <td>
+          <a href="../update_friend/{{f.id}}">수정</a>/
+          <a href="../delete_friend/{{f.id}}">삭제</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    <form action="../search/" method="get">
+      <input type="radio" name="condition" value="all" />완전일치
+      <input type="radio" name="condition" value="part" />부분일치
+      <input type="text" name="search_Name" />
+      <input type="submit" value="검색" />
+    </form>
+  </body>
+</html>

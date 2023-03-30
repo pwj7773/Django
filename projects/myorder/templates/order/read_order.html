@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <table border="1">
+      <tr>
+        <th>번호</th>
+        <th>주소</th>
+        <th>날짜</th>
+        <th>가격</th>
+      </tr>
+      <tr>
+        <td>{{order.id}}</td>
+        <td>{{order.address}}</td>
+        <td>{{order.order_date}}</td>
+        <td>{{order.price}}</td>
+      </tr>
+      <tr>
+        <td>내용</td>
+        <td colspan="4">
+          {% for o in order_list %} -{{o}} <br />
+          {% endfor %}
+        </td>
+      </tr>
+    </table>
+    <a href="update/">수정</a> &nbsp; <a href="delete/">삭제</a> <br />
+    <a href="javascript: history.back()">뒤로가기</a>
+  </body>
+</html>
