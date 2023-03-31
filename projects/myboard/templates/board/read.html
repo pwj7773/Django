@@ -27,8 +27,8 @@
       headers : {'X-CSRFTOKEN': '{{csrf_token}}'},
       data : {'rid' : rid, 'replyText' : replyText},
       success: function(response){
-        $("#btnUpdate").hide();
         document.getElementById('replyText').value = "";
+        $("#btnUpdate").hide();
 				$("#btnReply").show();
         loadReplyList();
       }
@@ -57,6 +57,9 @@
       type : 'post',
       headers : {'X-CSRFTOKEN': '{{csrf_token}}'},
       success : function(response){
+        document.getElementById('replyText').value = "";
+        $("#btnUpdate").hide();
+				$("#btnReply").show();
         loadReplyList();
       }
     });
