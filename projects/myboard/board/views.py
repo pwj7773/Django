@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect,JsonResponse,HttpResponse
+from django.http import HttpResponseRedirect,JsonResponse,HttpResponse,FileResponse
 from django.core.paginator import Paginator
 from django.core import serializers
 from django.contrib.auth.decorators import login_required
@@ -87,25 +87,35 @@ def write(request):
     
     else:  # 요청 방식이 POST면
         # DB저장
+        print(request.POST)
+        print(request.FILES)
         title = request.POST['title']
         content = request.POST['content']
         author = request.user # 요청에 들어있는 User 객체
         
 
         # 객체.save()
-        # board = Board(
-        #     title = title,
-        #     writer = writer,
-        #     content = content
-        # )
-        # board.save()
-        
-        # 모델.object.create(값)
-        Board.objects.create(
+        board = Board(
             title = title,
-            author = author,  # User 객체 저장
+            author = author,
             content = content
         )
+        # get 메서드 사용하는 이유
+        # 딕셔너리에서 존재하지 않는 키를 딕셔너리[키] -> KeyError
+        # 딕셔너리.get("키")
+        if request.FILES.get("uploadFile"):
+            upload_file = request.FILES["uploadFile"]
+            #요청에 들어있던 처부파일을 모델에 설정
+            board.attached_file = upload_file
+            board.original_file_name = upload_file.name
+        board.save() # DB에 insert
+        
+        # # 모델.object.create(값)
+        # Board.objects.create(
+        #     title = title,
+        #     author = author,  # User 객체 저장
+        #     content = content
+        # )
         return HttpResponseRedirect('/board/')
     
 @login_required(login_url='common:login')
@@ -120,6 +130,15 @@ def update(request, id):
         if board.author.username == request.user.username :
             board.title = request.POST['title']
             board.content = request.POST['content']
+            # 첨부파일이 있다면
+            if request.FILES.get('uploadFile'):
+                upload_file =request.FILES['uploadFile']
+                #요청에 들어있던 처부파일을 모델에 설정
+                board.attached_file = upload_file
+                board.original_file_name = upload_file.name
+            else:# 첨부파일이 없다면
+                board.attached_file = None
+                board.original_file_name = None
             board.save()
 
     return HttpResponseRedirect('/board/')
@@ -149,30 +168,28 @@ def write_reply(request, id) :
     )
     return JsonResponse({'result': 'success'})
 
-def delete_reply(requst, id , rid) :
-    print(f'id: {id} rid: {rid}')
-
+def delete_reply(request, id) :
+    rid = (loads(request.body))['rid']
     Board.objects.get(id = id ).reply_set.get(id = rid).delete()
     # Reply.objects.get(id = rid).delete
-    return JsonResponse({'response':'삭제'})
+    return HttpResponse(status=200)
 
-
-def update_reply(requst, id) :
+def update_reply(request, id) :
     board = Board.objects.get(id = id)
 
-    if requst.method == 'GET' :
-        data = requst.GET
+    if request.method == 'GET' :
+        data = request.GET
         rid = data['rid']
         reply = board.reply_set.get(id=rid)
         return JsonResponse({'replyText': reply.reply_content})
     else :
-        data = requst.POST
+        data = loads(request.body)
         rid = data['rid']
         replyText = data['replyText']
         reply = board.reply_set.get(id = rid)
         reply.reply_content = replyText
         reply.save()
-        return HttpResponse(status=200);
+        return HttpResponse(status=200)
     
 def call_ajax(request) :
     print('성공한 것 같아요')
@@ -201,3 +218,11 @@ def load_reply(requst,id):
 
     return JsonResponse(context)
 
+def downlad(requst,id):
+    board = Board.objects.get(id=id)
+    attached_file = board.attached_file
+    original_file_name = board.original_file_name
+    # 글 번호에 달려있던 첨부파일로 파일형식 응답 객체 생성
+    response =FileResponse(attached_file)
+    response['Content-Disposition'] = 'attachment; filename=%s' %original_file_name
+    return response

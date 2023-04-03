@@ -19,14 +19,15 @@
     });
   }
   
-  function update(){
-    rid = $("#rid").val();
-    replyText = $("#replyTextUpdate").val();
+  function updateReply(){
+    let rid = $("#rid").val();
+    let replyText = $("#replyTextUpdate").val();
+    let data = {'rid': rid, 'replyText': replyText};
     $.ajax({
       url: '{% url "board:update_reply" id=board.id %}',
       type : 'post',
       headers : {'X-CSRFTOKEN': '{{csrf_token}}'},
-      data: {'rid': rid, 'replyText': replyText},
+      data: JSON.stringify(data),
       success: function(res){
         $("#replyTextUpdate").val("");
         $("#updateForm").hide();
@@ -51,12 +52,13 @@
     });
   }
   
-  function deleteReply(rid){
-    // location.href = "delete_reply/" + rid;
+  function deleteReply(param){
+    let data = {'rid': param};
     $.ajax({
-      url: '/board/{{board.id}}/delete_reply/'+rid+'/',
+      url: '{% url "board:delete_reply" id=board.id %}',
       type : 'post',
       headers : {'X-CSRFTOKEN': '{{csrf_token}}'},
+      data: JSON.stringify(data),
       success : function(response){
         loadReplyList();
       }
@@ -68,6 +70,10 @@
     loadReplyList();
     $("#btnWrite").click(function(){
       writeReply();
+    });
+    $("#btnUpdate").click(function(){
+      alert("여기는 update")
+      updateReply();
     });
   });
 
@@ -87,6 +93,7 @@
           str += "<td>"
           if('{{user.username}}' === item.username){
             str += "<a href='#' onclick = 'showUpdateForm("+ item.id +")'>수정</a>";
+            str += "<a href='#' onclick = 'deleteReply("+ item.id +")'>삭제</a>";
           }
           str += "</td>"
           str += "</tr>";
@@ -111,6 +118,14 @@
   <tr>
     <td colspan="4">{{ board.content }}</td>
   </tr>
+  {% if board.original_file_name %}
+  <tr>
+    <th>첨부파일</th>
+    <td colspan="3">
+        <a href="{% url 'board:downlad' id=board.id %}">{{board.original_file_name}}</a>
+    </td>
+  </tr>
+  {% endif %}
 </table>
 <!-- 수정/삭제 -->
 <!-- username끼리 비교하려면 -->
@@ -133,7 +148,7 @@
     <div id="updateForm">
       <input type="hidden" id="rid">
       <textarea id="replyTextUpdate"></textarea>
-      <input type="button" id="btnUpdate" value="댓글수정" onclick="update()">
+      <input type="button" id="btnUpdate" value="댓글수정">
     </div>
   </div>
 </div>
