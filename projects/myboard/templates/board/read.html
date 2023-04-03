@@ -57,7 +57,7 @@
       url: '/board/{{board.id}}/delete_reply/'+rid+'/',
       type : 'post',
       headers : {'X-CSRFTOKEN': '{{csrf_token}}'},
-      success : function(res){
+      success : function(response){
         loadReplyList();
       }
     });
