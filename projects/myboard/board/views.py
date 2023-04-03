@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect,JsonResponse
+from django.http import HttpResponseRedirect,JsonResponse,HttpResponse
 from django.core.paginator import Paginator
 from django.core import serializers
 from django.contrib.auth.decorators import login_required
@@ -138,13 +138,8 @@ def delete(request, id):
 def write_reply(request, id) :
     data = request.POST
     user = request.user
-    reply_text = data['replyText']
-
-    # Reply.objects.create(
-    #     user = user,
-    #     reply_content = reply_text,
-    #     board_obj = Board.objects.get(id = id)
-    # )
+    reply = loads(request.body) # 요청의 body를 해석
+    reply_text = reply['replyText']
 
     # queryset을 이용
     board = Board.objects.get(id = id)
@@ -152,7 +147,7 @@ def write_reply(request, id) :
         reply_content = reply_text,
         user = user
     )
-    return JsonResponse({'reponse': reply_text})
+    return JsonResponse({'result': 'success'})
 
 def delete_reply(requst, id , rid) :
     print(f'id: {id} rid: {rid}')
@@ -177,7 +172,7 @@ def update_reply(requst, id) :
         reply = board.reply_set.get(id = rid)
         reply.reply_content = replyText
         reply.save()
-        return JsonResponse({'response': '성공'})
+        return HttpResponse(status=200);
     
 def call_ajax(request) :
     print('성공한 것 같아요')
@@ -188,17 +183,21 @@ def call_ajax(request) :
     print(type(data))
     return JsonResponse({'result' : 'ㅊㅋㅊㅋ'})
 
-def load_reply(requst):
-    id = requst.POST['id']
-    print(id)
-    # 해당하는 board id에 달려있는 모든 Reply 가져오기
-    # 1번 방법
-    # Reply.objects.filter(board_obj = id)
+def load_reply(requst,id):
 
-    # 2번 방법
-    reply_list = Board.objects.get(id = id).reply_set.all()
-    # QuerySet 그 자체는 JS에서는 알수 없는 타입 ㅜㅜ
-    # 그래서 JSON타입으로 형변환
-    serialized_list = serializers.serialize('json',reply_list)
-    return JsonResponse({'response' : serialized_list})
+    reply_list = Board.objects.get(id=id).reply_set.all()
+    reply_dict_list = []
+    # reply_list의 정보를 가지고 dictionary 만들기
+    for reply in reply_list:
+        reply_dict = {
+            'id': reply.id,
+            'username': reply.user.username,
+            'replyText': reply.reply_content,
+            'inputDate': reply.input_date
+        }
+        reply_dict_list.append(reply_dict)
+    
+    context = {'replyList': reply_dict_list}
+
+    return JsonResponse(context)
 

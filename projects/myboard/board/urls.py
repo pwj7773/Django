@@ -24,5 +24,5 @@ urlpatterns = [
     path('callAjax/', views.call_ajax),
     
     # AJAX_댓글 목록
-    path('load_reply/',views.load_reply),
+    path('<int:id>/load_reply/',views.load_reply, name = 'load_reply'),
 ]

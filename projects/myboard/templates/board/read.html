@@ -4,47 +4,48 @@
 
 {% block body %}
 <script>
-  function showUpdateForm(rid){
-    let replyText = document.getElementById('replyText').value;
-    // location.href = '/board/'+ '{{board.id}}' + '/update_reply?rid=' + rid;
+  function showUpdateForm(param){
+    $("#writeForm").hide();
+    $("#updateForm").show();
+
     $.ajax({
-      url : '/board/'+ '{{board.id}}' + '/update_reply?rid=' + rid,
-      success : function(reply){
-        console.log(rid)
-        document.getElementById('rid').value = rid
-        document.getElementById('replyText').value = reply.replyText
-        $("#btnUpdate").show();
-        $("#btnReply").hide();
+      url: '{% url "board:update_reply" id=board.id %}',
+      type: 'get',
+      data: {'rid': param},
+      success: function(res){
+        $("#replyTextUpdate").val(res.replyText);
+        $("#rid").val(param);
       }
-    })
+    });
   }
-  function updateReply(){
-    let rid =  document.getElementById('rid').value;
-    let replyText = document.getElementById('replyText').value;
+  
+  function update(){
+    rid = $("#rid").val();
+    replyText = $("#replyTextUpdate").val();
     $.ajax({
-      url : '/board/{{board.id}}/update_reply/',
+      url: '{% url "board:update_reply" id=board.id %}',
       type : 'post',
       headers : {'X-CSRFTOKEN': '{{csrf_token}}'},
-      data : {'rid' : rid, 'replyText' : replyText},
-      success: function(response){
-        $("#btnUpdate").hide();
-        document.getElementById('replyText').value = "";
-				$("#btnReply").show();
+      data: {'rid': rid, 'replyText': replyText},
+      success: function(res){
+        $("#replyTextUpdate").val("");
+        $("#updateForm").hide();
+        $("#writeForm").show();
         loadReplyList();
       }
-    })
+    });
   }
 
   function writeReply(){
-    let replyText = document.getElementById('replyText').value;
-
+    let replyText = $("#replyTextWrite").val();
+    let data = { 'replyText': replyText }
     $.ajax({
-      url: '/board/{{board.id}}/write_reply/',
+      url: '{% url "board:write_reply" id=board.id %}',
       type : 'post',
       headers : {'X-CSRFTOKEN': '{{csrf_token}}'},
-      data : {'replyText' : replyText},
-      success : function(response){
-        document.getElementById('replyText').value = "";
+      data : JSON.stringify(data),
+      success : function(result){
+        $("#replyTextWrite").val("");
         loadReplyList();
       }
     });
@@ -56,41 +57,42 @@
       url: '/board/{{board.id}}/delete_reply/'+rid+'/',
       type : 'post',
       headers : {'X-CSRFTOKEN': '{{csrf_token}}'},
-      success : function(response){
+      success : function(res){
         loadReplyList();
       }
     });
   }
 
   $(document).ready(function(){
-    $("#btnUpdate").hide();
+    $("#updateForm").hide();
     loadReplyList();
+    $("#btnWrite").click(function(){
+      writeReply();
+    });
   });
 
   function loadReplyList(){
-    let bNum = '{{board.id}}';
-    console.log(bNum);
     $.ajax({
-      url: '/board/load_reply/',
-      type: 'post',
-      headers : {'X-CSRFTOKEN': '{{csrf_token}}'},
-      data: {'id':bNum},
-      success: function(response){
-        console.log(JSON.parse(response.response))
-        
-        let replyList = JSON.parse(response.response)
-        let str = '';
-        $.each(replyList, function(i, item){
-          let replyContent = item.fields.reply_content;
-          // // 바로바로 화면에 붙이려면 append
-          // $('#replyList').append(replyContent);
-          str += replyContent;
-          str += " <a href='#' onclick='showUpdateForm(" + item.pk +");'>수정</a>/"
-          str += " <a href='#' onclick='deleteReply(" + item.pk +");'>삭제</a>"
-          str += "<br>";
-        })
-        // HTML을 만들어서 한번에 넣으려면 html
-        $('#replyList').html(str);
+      url: '{% url "board:load_reply" id=board.id %}',
+      type: 'get',
+      success: function(res){
+        // console.log(res)
+        let str = '<table>';
+        $.each(res.replyList, function(index, item){
+          let replacedDate = item.inputDate.replace("T"," ").replace("Z","").split(".")[0]
+          str += "<tr>";
+          str += "<td>" + item.replyText + "</td>";
+          str += "<td>" + item.username + "</td>";
+          str += "<td>" + replacedDate + "</td>";
+          str += "<td>"
+          if('{{user.username}}' === item.username){
+            str += "<a href='#' onclick = 'showUpdateForm("+ item.id +")'>수정</a>";
+          }
+          str += "</td>"
+          str += "</tr>";
+        });
+        str += "</table>";
+        $("#replyList").html(str);
       }
     });
   }
@@ -124,10 +126,15 @@
   </div>
   <!-- 댓글 입력 폼 -->
   <div id="replyForm">
-    <input type="hidden" id="rid">
-    <textarea id="replyText"></textarea>
-    <input type="button" id="btnReply" value="댓글쓰기" onclick="writeReply()">
-    <input type="button" id="btnUpdate" value="댓글수정" onclick="updateReply()">
+    <div id="writeForm">
+      <textarea id="replyTextWrite"></textarea>
+      <input type="button" id="btnWrite" value="댓글쓰기">
+    </div>
+    <div id="updateForm">
+      <input type="hidden" id="rid">
+      <textarea id="replyTextUpdate"></textarea>
+      <input type="button" id="btnUpdate" value="댓글수정" onclick="update()">
+    </div>
   </div>
 </div>
 <form action="{% url 'board:index' %}">
