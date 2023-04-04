@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[주문정보 조회]</title>
+</head>
+<body>
+    <table border="1">
+        <tr>
+            <th>주문번호</th>
+            <th>상품명</th>
+            <th>주문일시</th>
+            <th>주문수량</th>
+            <th>수정/삭제</th>
+        </tr>
+        {% for i in item %}
+        <tr>
+            <td>{{i.id}}</td>
+            <td>{{i.item_code.item_name}}</td>
+            <td>{{i.order_date}}</td>
+            <td>{{i.quantity}}</td>
+            <td><a href="#">수정</a>/<a href="#">삭제</a> </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
