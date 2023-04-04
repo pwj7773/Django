@@ -48,4 +48,24 @@ def item_delete(request,id):
 def order_delete(request,id):
     Order.objects.get(id = id).delete()
     return redirect('/item/')
-     
+
+def item_update(request,id):
+     item =Item.objects.get(id=id)
+     if request.method == 'GET':
+          return render(request,"item/item_update.html",{'item':item})
+     else:
+          item.item_name = request.POST['item_name']
+          item.item_count = request.POST['item_count']
+          item.save()
+          return redirect("/item/")
+
+
+def order_update(request,id):
+     order =Order.objects.get(id=id)
+     if request.method == 'GET':
+        return render(request,"item/order_update.html",{'order':order})
+     else:
+        order.item_code = Item.objects.get(id=request.POST['id'])
+        order.order_count = request.POST['order_count']
+        order.save()
+        return redirect("/item/")

@@ -21,7 +21,7 @@
             <td>{{i.item_code.item_name}}</td>
             <td>{{i.order_date}}</td>
             <td>{{i.quantity}}</td>
-            <td><a href="#">수정</a>/<a href="{% url 'order_delete' id=i.id %}">삭제</a> </td>
+            <td><a href="{% url 'order_update' id=i.id %}">수정</a>/<a href="{% url 'order_delete' id=i.id %}">삭제</a> </td>
         </tr>
         {% endfor %}
     </table>

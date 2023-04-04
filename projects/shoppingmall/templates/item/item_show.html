@@ -23,7 +23,7 @@
             <td>{{i.id}}</td>
             <td>{{i.item_name}}</td>
             <td>{{i.item_count}}</td>
-            <td><a href="#">수정</a>/<a href="{% url 'item_delete' id=i.id %}">삭제</a> </td>
+            <td><a href="{% url 'item_update' id=i.id %}">수정</a>/<a href="{% url 'item_delete' id=i.id %}">삭제</a> </td>
         </tr>
         {% endfor %}
     </table>
