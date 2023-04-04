@@ -41,4 +41,11 @@ def sale_show(request):
      item = Item.objects.all()
      return render(request,"item/sale_show.html",{'item' : item })
 
+def item_delete(request,id):
+     Item.objects.get(id = id).delete()
+     return redirect('/item/')
+
+def order_delete(request,id):
+    Order.objects.get(id = id).delete()
+    return redirect('/item/')
      
