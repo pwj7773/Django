@@ -23,6 +23,10 @@
     let rid = $("#rid").val();
     let replyText = $("#replyTextUpdate").val();
     let data = {'rid': rid, 'replyText': replyText};
+    if (replyText.length === 0){
+      alert('댓글이 비어있음')
+      return;
+    }
     $.ajax({
       url: '{% url "board:update_reply" id=board.id %}',
       type : 'post',
@@ -40,6 +44,10 @@
   function writeReply(){
     let replyText = $("#replyTextWrite").val();
     let data = { 'replyText': replyText }
+    if (replyText.length === 0){
+      alert('댓글이 비어있음')
+      return;
+    }
     $.ajax({
       url: '{% url "board:write_reply" id=board.id %}',
       type : 'post',
@@ -68,13 +76,15 @@
   $(document).ready(function(){
     $("#updateForm").hide();
     loadReplyList();
+
     $("#btnWrite").click(function(){
       writeReply();
     });
+    
     $("#btnUpdate").click(function(){
-      alert("여기는 update")
       updateReply();
     });
+
   });
 
   function loadReplyList(){

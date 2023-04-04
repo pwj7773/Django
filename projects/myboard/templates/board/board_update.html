@@ -3,13 +3,21 @@
 {% block title %}[글 수정하기]{% endblock title%}
 {% block body %}
   <script>
+    function validate() {
+      
+      let fomResult = formValidate();
+      let fileResult = validateFile();
+      if (fomResult && validateFile()){
+        return true;
+      }
+      return false;
+    }
     function validateFile() {
       let file = document.getElementById("uploadFile");
       console.log(file.value);
       // 첨부파일이 있었는데 수정하면서 없을 때
       if ('{{board.original_file_name}}' !== "" && file.value === ""){
         let go = confirm("파일이 첨부되지 않았습니다. 계속하시겠습니까?")
-
         if (go == true){
           return true;
         }else{
@@ -20,12 +28,12 @@
   </script>
 <h1>글 수정하기</h1>
 
-<form action="{% url 'board:update' board.id %}" method="post" enctype="multipart/form-data" onsubmit="return validateFile();">
+<form action="{% url 'board:update' board.id %}" method="post" enctype="multipart/form-data" onsubmit="return validate();">
   {% csrf_token %}
   <table>
     <tr>
       <th>제목</th>
-      <td><input type="text" name="title" value="{{ board.title }}"/></td>
+      <td><input type="text" name="title" id="title" value="{{ board.title }}"/></td>
     </tr>
     <!-- <tr>
       <th>글쓴이</th>
@@ -36,7 +44,7 @@
     <tr>
       <th>내용</th>
       <td>
-        <textarea name="content" cols="30" rows="10">{{board.content}}</textarea>
+        <textarea name="content" id="content" cols="30" rows="10">{{board.content}}</textarea>
       </td>
     </tr>
 

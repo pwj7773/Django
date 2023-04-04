@@ -26,4 +26,10 @@ urlpatterns = [
     # AJAX_댓글 목록
     path('<int:id>/load_reply/',views.load_reply, name = 'load_reply'),
     path('<int:id>/downlad/',views.downlad,name='downlad'),
+
+
+    # CBV 방식으로 호출할 주소
+    # as_view() : 클래스를 뷰의 기능으로서 사용하겠다~
+    path('cbv/', views.BoardList.as_view()),
+    path('cbv/<int:pk>/', views.BoardDetail.as_view()),
 ]
