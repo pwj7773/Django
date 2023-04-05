@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[영화 정보 등록]</title>
+</head>
+<script>
+    function validate(){
+        let movie_name = document.getElementById('movie_name').value
+        let movie_summary = document.getElementById('movie_summary').value
+
+        if (movie_name.trim() == "" || movie_summary.trim() == ""){
+            alert("제목 또는 내용이 비어있습니다.")
+            return false
+        }
+        return true
+    }
+</script>
+<body>
+    <h1>[영화 정보 등록]</h1>
+    <form action="{% url 'movie_add' %}" method="POST" onsubmit="return validate();">
+        {% csrf_token %}
+        <table border="1">
+            <tr>
+                <td>
+                    <select name="genre">
+                        <option value="액션">액션</option>
+                        <option value="코미디">코미디</option>
+                        <option value="애니메이션">애니메이션</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" id="movie_name" name="movie_name" placeholder="영화 제목을 입력하세요">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><textarea id="movie_summary" name="movie_summary" cols="40" rows="5"></textarea></td>
+            </tr>
+            <tr>
+                <th colspan="2"><input type="submit" value="등록하기"></th>
+            </tr>
+        </table>
+    </form>
+</body>
+</html>

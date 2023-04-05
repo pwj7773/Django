@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[영화 정보 수정]</title>
+</head>
+<script>
+    window.onload = function(){
+        let genre = "{{movie.genre}}"
+        let target = document.getElementById('genre');
+        for (i in target){
+            if (target[i].value == genre) {
+                target.options[i].selected = true; 
+                return
+            }
+        }
+    }
+    function validate(){
+        let movie_name = document.getElementById('movie_name').value
+        let movie_summary = document.getElementById('movie_summary').value
+
+        if (movie_name.trim() == "" || movie_summary.trim() == ""){
+            alert("제목 또는 내용이 비어있습니다.")
+            return false
+        }
+        return true
+    }
+    function deleteMovie(){
+        if (confirm('삭제된 내용은 복구할 수 없습니다 계속하시겠습니까?')){
+            location.href="{% url 'movie_delete' id=movie.id %}"
+        }
+        return false
+    }
+    
+</script>
+<body>
+    <h1>[영화 정보 수정]</h1>
+    <form action="{% url 'movie_update' id=movie.id %}" method="POST" onsubmit="return validate();">
+        {% csrf_token %}
+        <table border="1">
+            <tr>
+                <td>
+                    <select id="genre" name="genre">
+                        <option value="액션">액션</option>
+                        <option value="코미디">코미디</option>
+                        <option value="애니메이션">애니메이션</option>
+                    </select>
+                </td>
+                <td>
+                    <input value="{{movie.movie_name}}" type="text" id="movie_name" name="movie_name" placeholder="영화 제목을 입력하세요">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><textarea id="movie_summary" name="movie_summary" cols="40" rows="5">{{movie.movie_summary}}</textarea></td>
+            </tr>
+            <tr>
+                <th colspan="2"><input type="submit" value="수정하기"> 
+                                <input type="button" value="삭제하기" onclick="return deleteMovie()">
+                </th>
+            </tr>
+        </table>
+    </form>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[영화 리뷰 게시판]</title>
+</head>
+<body>
+    <h1>[영화 리뷰 게시판]</h1>
+    정렬 ▷<a href="{% url 'index' %}">최신 등록순</a> &nbsp; <a href="{% url 'index' %}?order=-1">리뷰 많은순</a>
+    {% if movie %}
+    <table border="1">
+        <tr>
+            <th>번호</th>
+            <th>장르</th>
+            <th>제목</th>
+            <th>리뷰수</th>
+        </tr>
+        {% for i in movie %}
+        <tr>
+            <td>{{i.id}}</td>
+            <td>{{i.genre}}</td>
+            <td><a href="{% url 'info' id=i.id %}">{{i.movie_name}}</a></td>
+            <td>{{i.review_set.count}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <h2>영화 정보가 없습니다</h2>
+    {% endif %}
+    내가 찾는 영화가 없다면? <a href="{% url 'movie_add' %}">영화 등록하기</a> <br>
+    <form action="{% url 'index' %}" method="POST">
+        {% csrf_token %}   
+        장르 골라보기
+        <select name="genre"> 
+            <option value="액션">액션</option>
+            <option value="코미디">코미디</option>
+            <option value="애니메이션">애니메이션</option>
+         </select>
+         <input type="submit" value="골라보기">
+    </form>
+</body>
+</html>

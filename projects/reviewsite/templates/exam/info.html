@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영화 정보 및 리뷰 보기</title>
+</head>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+<script>
+    function reviewValidate(){
+        let review_text = document.getElementById('review_text').value;
+        let score = document.getElementById('score').value;
+        if(review_text.trim() == "" || review_text.length < 10){
+            alert("리뷰 내용이 너무 짧습니다.");
+            return false;
+        }
+        if(score < 0 || score > 10 || score.trim() == ""){
+            alert("평점은 0~10 사이만 입력 가능합니다.");
+            return false;
+        }
+        reviewAdd();
+    }
+    function reviewAdd(){
+        reviewerName = $("#reviewer_name").val();
+        reviewText = $("#review_text").val();
+        score = $("#score").val();
+        $.ajax({
+            url: "{% url 'review_add' id=movie.id %}",
+            type : 'post',
+            headers : {'X-CSRFTOKEN': '{{csrf_token}}'},
+            data : {
+                'reviewer_name': reviewerName,
+                'review_text': reviewText,
+                'score': score
+            },
+            success: function(){
+                $("#reviewer_name").val("");
+                $("#review_text").val("");
+                $("#score").val("");
+                loadReview();
+            }
+        });
+    }
+    function loadReview(){
+        $.ajax({
+            url: '{% url "load_review" id=movie.id %}',
+            success: function(res){
+                let str = '<table border="1">';
+                $.each(res.review_list, function(index, item){
+                    let replacedDate = item.reg_date.replace("T"," ").replace("Z","").split(" ")[0]
+                    str += "<tr>";
+                    str += "<td>" + item.reviewer_name + "</td>";
+                    str += "<td>" + item.review_text + "</td>";
+                    str += "<td>" + item.score + "</td>";
+                    str += "<td>" + replacedDate + "</td>";
+                    str += "</tr>";
+                });
+                str += "</table>";
+                $("#reviewTable").html(str);
+                $("#reviewAvg").html("<h2>관객평점:"+ res.reviews_score +"</h2>")
+            }
+        });
+    }
+    $(document).ready(function(){
+        loadReview();
+    });
+</script>
+<body>
+    <h1>[{{movie.movie_name}}]에 대한 정보입니다.</h1>
+    <h2>장르: {{movie.genre}}</h2>
+    <p>영화설명: {{movie.movie_summary}}</p>
+    <a href="{% url 'movie_update' id=movie.id%}">영화 정보 수정하기</a>
+    <div id="reviewAvg"></div>
+    <h1>[{{movie.movie_name}}] 관객 리뷰</h1>
+    <div id="reviewTable"></div>
+    <input type="text" id="reviewer_name" name="reviewer_name" placeholder="닉네임을 입력하세요">
+    <textarea id="review_text" name="review_text" cols="30" rows="2"></textarea>
+    <input type="number" id="score" name="score" placeholder="내 평점(0~10)">
+    <input type="button" value="등록하기" onclick="return reviewValidate();">
+</body>
+</html>
